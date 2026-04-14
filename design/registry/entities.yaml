@@ -37,7 +37,7 @@
 #   Each entry: name, status, source, referenced_by[], attributes{}, added, revised
 
 version: 1
-last_updated: ""
+last_updated: 2026-04-13
 
 # ─── ENTITIES ────────────────────────────────────────────────────────────────
 # Named game-world objects: enemies, NPCs, characters, factions, bosses.
@@ -106,7 +106,33 @@ items: []
 #   output_range[min, max], added
 # Optional: expression (the actual formula), notes
 
-formulas: []
+formulas:
+  - name: display_value
+    status: active
+    source: design/gdd/data-driven-config.md
+    referenced_by:
+      - design/gdd/data-driven-config.md
+    variables:
+      - stored_int
+    output_range: [-1000.0, 1000.0]
+    expression: "stored_int / 1000.0"
+    notes: "UI-only float conversion of per-mille fixed-point integers. Combat/sim path must NEVER apply this conversion — only display layer (HUD, menus, replay viewer). Enforces cross-platform determinism."
+    added: 2026-04-13
+    revised: ""
+
+  - name: boot_hash
+    status: active
+    source: design/gdd/data-driven-config.md
+    referenced_by:
+      - design/gdd/data-driven-config.md
+    variables:
+      - boot_resource_paths
+      - boot_resource_content_hashes
+    output_range: [0, 0]  # 64-char hex string, not numeric
+    expression: "SHA256(concat(sorted(boot_resource_paths) || sorted(boot_resource_content_hashes)))"
+    notes: "Anti-cheat session integrity hash. Server-expected vs client-reported mismatch flags session for review. Sorted ordering + content hashing guarantees iOS/Android/Web produce identical hashes for identical Resources."
+    added: 2026-04-13
+    revised: ""
 
 # Example:
 #
@@ -139,7 +165,129 @@ formulas: []
 #
 # Required fields: name, status, source, referenced_by, value, unit, added
 
-constants: []
+constants:
+  # ── Per-mille fixed-point convention (cross-platform determinism guarantee) ──
+  - name: per_mille_scale
+    status: active
+    source: design/gdd/data-driven-config.md
+    referenced_by:
+      - design/gdd/data-driven-config.md
+    value: 1000
+    unit: scale_factor
+    notes: "Scale factor used to represent fractional combat-critical values as integers. e.g. stat_scaling=1250 represents 1.25x. ALL combat-critical values use this convention; floats forbidden in combat path."
+    added: 2026-04-13
+    revised: ""
+
+  # ── Resource type contracts (10 Custom Resource classes defined by data-driven-config) ──
+  - name: MaterialDefinition
+    status: active
+    source: design/gdd/data-driven-config.md
+    referenced_by:
+      - design/gdd/data-driven-config.md
+    value: "assets/data/materials/"
+    unit: resource_class_folder
+    notes: "Custom Resource class for craftable ingredients. Owner of field semantics: Material System GDD (pending)."
+    added: 2026-04-13
+    revised: ""
+
+  - name: AffixDefinition
+    status: active
+    source: design/gdd/data-driven-config.md
+    referenced_by:
+      - design/gdd/data-driven-config.md
+    value: "assets/data/affixes/"
+    unit: resource_class_folder
+    notes: "Custom Resource class for stat modifiers attached to weapons. Owner of field semantics: Affix System GDD (pending)."
+    added: 2026-04-13
+    revised: ""
+
+  - name: ElementDefinition
+    status: active
+    source: design/gdd/data-driven-config.md
+    referenced_by:
+      - design/gdd/data-driven-config.md
+    value: "assets/data/elements/"
+    unit: resource_class_folder
+    notes: "Custom Resource class for elements and their relationships (strong_against, weak_against, neutral_against). Loaded at boot phase. Hard dependency for any element-aware system."
+    added: 2026-04-13
+    revised: ""
+
+  - name: WeaponArchetypeDefinition
+    status: active
+    source: design/gdd/data-driven-config.md
+    referenced_by:
+      - design/gdd/data-driven-config.md
+    value: "assets/data/weapon_archetypes/"
+    unit: resource_class_folder
+    notes: "Custom Resource class for weapon class templates. Owner of field semantics: Weapon Entity System GDD (pending)."
+    added: 2026-04-13
+    revised: ""
+
+  - name: HeroArchetypeDefinition
+    status: active
+    source: design/gdd/data-driven-config.md
+    referenced_by:
+      - design/gdd/data-driven-config.md
+    value: "assets/data/hero_archetypes/"
+    unit: resource_class_folder
+    notes: "Custom Resource class for wielder class templates. Owner of field semantics: Hero/Wielder System GDD (pending). MVP launches with 2 archetypes (Melee Brute, Agile Striker)."
+    added: 2026-04-13
+    revised: ""
+
+  - name: EnemyDefinition
+    status: active
+    source: design/gdd/data-driven-config.md
+    referenced_by:
+      - design/gdd/data-driven-config.md
+    value: "assets/data/enemies/"
+    unit: resource_class_folder
+    notes: "Custom Resource class for PvE enemies. Owner of field semantics: Enemy System GDD (pending). On-demand loading."
+    added: 2026-04-13
+    revised: ""
+
+  - name: RecipeHintDefinition
+    status: active
+    source: design/gdd/data-driven-config.md
+    referenced_by:
+      - design/gdd/data-driven-config.md
+    value: "assets/data/recipe_hints/"
+    unit: resource_class_folder
+    notes: "Custom Resource class for discoverable forge recipe fragments. Owner of field semantics: Recipe Discovery System GDD (Tier 2 / Vertical Slice)."
+    added: 2026-04-13
+    revised: ""
+
+  - name: BalanceConstants
+    status: active
+    source: design/gdd/data-driven-config.md
+    referenced_by:
+      - design/gdd/data-driven-config.md
+    value: "assets/data/balance/balance_constants.tres"
+    unit: resource_singleton
+    notes: "Single Resource (singleton at MVP) for global tuning values: combat_round_cap, crit_base_chance_per_mille, dodge_cap_per_mille, power_rating_formula_weights, etc. Boot-phase load. Field semantics owned by Combat Simulation GDD + Economy GDD."
+    added: 2026-04-13
+    revised: ""
+
+  - name: LigaDefinition
+    status: active
+    source: design/gdd/data-driven-config.md
+    referenced_by:
+      - design/gdd/data-driven-config.md
+    value: "assets/data/ligas/"
+    unit: resource_class_folder
+    notes: "Custom Resource class for competitive tier bands. Boot-phase load. Field semantics owned by Liga/Rankings GDD (Tier 2)."
+    added: 2026-04-13
+    revised: ""
+
+  - name: LootTableDefinition
+    status: active
+    source: design/gdd/data-driven-config.md
+    referenced_by:
+      - design/gdd/data-driven-config.md
+    value: "assets/data/loot_tables/"
+    unit: resource_class_folder
+    notes: "Custom Resource class for drop probability tables. Validation enforces non-zero weight sum. Field semantics owned by Economy System GDD (pending)."
+    added: 2026-04-13
+    revised: ""
 
 # Example:
 #

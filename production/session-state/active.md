@@ -4,7 +4,14 @@
 
 ## Current Task
 
-Pre-production — systems decomposition complete. Ready to author individual system GDDs.
+**Camino B (prototype-first) Step 1 of 4 complete.**
+
+GDD #1 of 4 critical-for-prototype: **Data-Driven Config** — DESIGNED ✓
+- File: `design/gdd/data-driven-config.md` (519 lines, 9 sections, no placeholders)
+- Registry: 2 formulas + 11 constants added to `design/registry/entities.yaml`
+- Status pending: `/design-review` in fresh session
+
+**Next**: GDD #2 of 4 — `/design-system material-system`
 
 ## Progress Checklist
 

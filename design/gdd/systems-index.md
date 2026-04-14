@@ -37,7 +37,7 @@ El scope técnico se caracteriza por: **data-driven** en todo (sistemas de mater
 | 14 | Idle/Offline Progression | Progression | Vertical Slice | Not Started | — | Save/Load, Material, Economy |
 | 15 | Recipe Discovery | Progression | Vertical Slice | Not Started | — | Forge System, Save/Load |
 | 16 | Collection/Signature (inferred) | Progression | Vertical Slice | Not Started | — | Weapon Entity, Save/Load |
-| 17 | Data-Driven Config (inferred) | Core | MVP | Not Started | — | — |
+| 17 | Data-Driven Config (inferred) | Core | MVP | Designed | [data-driven-config.md](data-driven-config.md) | — |
 | 18 | Save/Load & Persistence (inferred) | Persistence | MVP (local) / VS (cloud) | Not Started | — | — |
 | 19 | Networking Layer | Core | MVP | Not Started | — | — |
 | 20 | Anti-Cheat Validation (inferred) | Core | Vertical Slice | Not Started | — | Networking, Combat Simulation |
@@ -241,10 +241,10 @@ Sistemas que requieren prototipado temprano independientemente de su tier.
 | Metric | Count |
 |--------|-------|
 | Total systems identified | 40 |
-| Design docs started | 0 |
+| Design docs started | 1 |
 | Design docs reviewed | 0 |
 | Design docs approved | 0 |
-| MVP systems designed | 0 / 23 |
+| MVP systems designed | 1 / 23 |
 | Vertical Slice systems designed | 0 / 12 |
 | Full Vision systems designed | 0 / 5 |
 
