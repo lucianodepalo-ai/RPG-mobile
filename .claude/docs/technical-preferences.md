@@ -5,83 +5,83 @@
 
 ## Engine & Language
 
-- **Engine**: [TO BE CONFIGURED — run /setup-engine]
-- **Language**: [TO BE CONFIGURED]
-- **Rendering**: [TO BE CONFIGURED]
-- **Physics**: [TO BE CONFIGURED]
+- **Engine**: Godot 4.6
+- **Language**: GDScript
+- **Rendering**: Godot 2D renderer (HD-2D pixel art with parallax layers); Forward+ available for future 3D effects if needed
+- **Physics**: Godot 2D physics (no es core del loop — el combate es logic-driven, no physics-based)
 
 ## Input & Platform
 
-<!-- Written by /setup-engine. Read by /ux-design, /ux-review, /test-setup, /team-ui, and /dev-story -->
-<!-- to scope interaction specs, test helpers, and implementation to the correct input methods. -->
-
-- **Target Platforms**: [TO BE CONFIGURED — e.g., PC, Console, Mobile, Web]
-- **Input Methods**: [TO BE CONFIGURED — e.g., Keyboard/Mouse, Gamepad, Touch, Mixed]
-- **Primary Input**: [TO BE CONFIGURED — the dominant input for this game]
-- **Gamepad Support**: [TO BE CONFIGURED — Full / Partial / None]
-- **Touch Support**: [TO BE CONFIGURED — Full / Partial / None]
-- **Platform Notes**: [TO BE CONFIGURED — any platform-specific UX constraints]
+- **Target Platforms**: Mobile (iOS, Android), Web (HTML5)
+- **Input Methods**: Touch, Mouse (web fallback)
+- **Primary Input**: Touch
+- **Gamepad Support**: None
+- **Touch Support**: Full
+- **Platform Notes**:
+  - Portrait mode obligatorio.
+  - Todas las interacciones touch-first; en Web el mouse emula touch.
+  - Respetar safe areas iOS (notch, home indicator) y Android (display cutouts).
+  - UI escalable para rango de resoluciones mobile: 360×640 (mínimo) → 430×932 (iPhone Pro Max) → tablets en formato portrait.
+  - Target para Web: build HTML5 < 15 MB inicial (load rápido en 3G/4G); considerar asset streaming.
 
 ## Naming Conventions
 
-- **Classes**: [TO BE CONFIGURED]
-- **Variables**: [TO BE CONFIGURED]
-- **Signals/Events**: [TO BE CONFIGURED]
-- **Files**: [TO BE CONFIGURED]
-- **Scenes/Prefabs**: [TO BE CONFIGURED]
-- **Constants**: [TO BE CONFIGURED]
+- **Classes**: PascalCase — `ForgeController`, `WeaponArchetype`
+- **Variables**: snake_case — `move_speed`, `material_count`
+- **Signals/Events**: snake_case past tense — `weapon_forged`, `material_added`, `health_changed`
+- **Files**: snake_case matching class — `forge_controller.gd`
+- **Scenes/Prefabs**: PascalCase matching root node — `ForgeController.tscn`
+- **Constants**: UPPER_SNAKE_CASE — `MAX_MATERIALS_PER_FORGE`, `DEFAULT_FORGE_DURATION`
 
 ## Performance Budgets
 
-- **Target Framerate**: [TO BE CONFIGURED]
-- **Frame Budget**: [TO BE CONFIGURED]
-- **Draw Calls**: [TO BE CONFIGURED]
-- **Memory Ceiling**: [TO BE CONFIGURED]
+- **Target Framerate**: 60 fps (mobile high-end) / 30 fps (mobile low-end fallback)
+- **Frame Budget**: 16.6 ms @ 60 fps / 33.3 ms @ 30 fps
+- **Draw Calls**: < 200 por frame en mobile (Godot 2D renderer)
+- **Memory Ceiling**: 512 MB en mobile; < 100 MB en Web HTML5 RAM footprint
+- **Build Size**:
+  - Mobile APK / IPA: target < 80 MB inicial, con asset streaming para contenido adicional
+  - Web HTML5: target < 15 MB inicial (load rápido); resto streaming por loader tipo Addressables
 
 ## Testing
 
-- **Framework**: [TO BE CONFIGURED]
-- **Minimum Coverage**: [TO BE CONFIGURED]
-- **Required Tests**: Balance formulas, gameplay systems, networking (if applicable)
+- **Framework**: gdUnit4 (Godot 4 — community-maintained, activo, integración CLI)
+- **Minimum Coverage**: Por story type (ver `.claude/docs/coding-standards.md`):
+  - Logic (formulas, combate sim, AI): **BLOCKING** — test unitario obligatorio
+  - Integration (multi-system): **BLOCKING** — integration test o playtest documentado
+  - Visual/Feel: **ADVISORY** — screenshot + sign-off
+  - UI: **ADVISORY** — walkthrough doc o interaction test
+  - Config/Data (balance tuning): **ADVISORY** — smoke check
+- **Required Tests**: Fórmulas de combate, sistemas de forja (combinación materiales → stats), matchmaking por poder de build, simulación determinista cross-platform
 
 ## Forbidden Patterns
 
-<!-- Add patterns that should never appear in this project's codebase -->
 - [None configured yet — add as architectural decisions are made]
 
 ## Allowed Libraries / Addons
 
-<!-- Add approved third-party dependencies here -->
 - [None configured yet — add as dependencies are approved]
 
 ## Architecture Decisions Log
 
-<!-- Quick reference linking to full ADRs in docs/architecture/ -->
 - [No ADRs yet — use /architecture-decision to create one]
 
 ## Engine Specialists
 
-<!-- Written by /setup-engine when engine is configured. -->
-<!-- Read by /code-review, /architecture-decision, /architecture-review, and team skills -->
-<!-- to know which specialist to spawn for engine-specific validation. -->
-
-- **Primary**: [TO BE CONFIGURED — run /setup-engine]
-- **Language/Code Specialist**: [TO BE CONFIGURED]
-- **Shader Specialist**: [TO BE CONFIGURED]
-- **UI Specialist**: [TO BE CONFIGURED]
-- **Additional Specialists**: [TO BE CONFIGURED]
-- **Routing Notes**: [TO BE CONFIGURED]
+- **Primary**: godot-specialist
+- **Language/Code Specialist**: godot-gdscript-specialist (all .gd files)
+- **Shader Specialist**: godot-shader-specialist (.gdshader files, VisualShader resources)
+- **UI Specialist**: godot-specialist (no dedicated UI specialist — primary covers all UI)
+- **Additional Specialists**: godot-gdextension-specialist (GDExtension / native C++ bindings only)
+- **Routing Notes**: Invoke primary for architecture decisions, ADR validation, and cross-cutting code review. Invoke GDScript specialist for code quality, signal architecture, static typing enforcement, and GDScript idioms. Invoke shader specialist for material design and shader code. Invoke GDExtension specialist only when native extensions are involved.
 
 ### File Extension Routing
 
-<!-- Skills use this table to select the right specialist per file type. -->
-<!-- If a row says [TO BE CONFIGURED], fall back to Primary for that file type. -->
-
 | File Extension / Type | Specialist to Spawn |
 |-----------------------|---------------------|
-| Game code (primary language) | [TO BE CONFIGURED] |
-| Shader / material files | [TO BE CONFIGURED] |
-| UI / screen files | [TO BE CONFIGURED] |
-| Scene / prefab / level files | [TO BE CONFIGURED] |
-| Native extension / plugin files | [TO BE CONFIGURED] |
-| General architecture review | Primary |
+| Game code (.gd files) | godot-gdscript-specialist |
+| Shader / material files (.gdshader, VisualShader) | godot-shader-specialist |
+| UI / screen files (Control nodes, CanvasLayer) | godot-specialist |
+| Scene / prefab / level files (.tscn, .tres) | godot-specialist |
+| Native extension / plugin files (.gdextension, C++) | godot-gdextension-specialist |
+| General architecture review | godot-specialist |
