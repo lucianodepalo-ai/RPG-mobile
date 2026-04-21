@@ -21,7 +21,7 @@ El scope técnico se caracteriza por: **data-driven** en todo (sistemas de mater
 
 | # | System Name | Category | Priority | Status | Design Doc | Depends On |
 |---|-------------|----------|----------|--------|------------|------------|
-| 1 | Material System | Gameplay | MVP | Not Started | — | Data-Driven Config, Save/Load |
+| 1 | Material System | Gameplay | MVP | Designed | [material-system.md](material-system.md) | Data-Driven Config, Save/Load |
 | 2 | Forge System | Gameplay | MVP | Not Started | — | Material, Weapon Entity, Affix, Audio, VFX, Input |
 | 3 | Affix/Mutation System | Gameplay | MVP | Not Started | — | Data-Driven Config, Weapon Entity |
 | 4 | Weapon Entity System | Core | MVP | Not Started | — | Data-Driven Config, Save/Load, Material |
@@ -241,10 +241,10 @@ Sistemas que requieren prototipado temprano independientemente de su tier.
 | Metric | Count |
 |--------|-------|
 | Total systems identified | 40 |
-| Design docs started | 1 |
+| Design docs started | 2 |
 | Design docs reviewed | 0 |
 | Design docs approved | 0 |
-| MVP systems designed | 1 / 23 |
+| MVP systems designed | 2 / 23 |
 | Vertical Slice systems designed | 0 / 12 |
 | Full Vision systems designed | 0 / 5 |
 

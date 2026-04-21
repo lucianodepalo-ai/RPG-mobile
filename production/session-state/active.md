@@ -4,14 +4,21 @@
 
 ## Current Task
 
-**Camino B (prototype-first) Step 1 of 4 complete.**
+**Camino B (prototype-first) Step 2 of 4 complete.**
 
-GDD #1 of 4 critical-for-prototype: **Data-Driven Config** — DESIGNED ✓
-- File: `design/gdd/data-driven-config.md` (519 lines, 9 sections, no placeholders)
-- Registry: 2 formulas + 11 constants added to `design/registry/entities.yaml`
-- Status pending: `/design-review` in fresh session
+GDD #1 of 4: **Data-Driven Config** — DESIGNED ✓
+GDD #2 of 4: **Material System** — DESIGNED ✓
+- File: `design/gdd/material-system.md` (9 sections complete)
+- Registry: 12 items (materials) + 4 formulas + 10 constants + 1 updated referenced_by
+- Pending: `/design-review` in fresh session
 
-**Next**: GDD #2 of 4 — `/design-system material-system`
+**Key MVP content locked**:
+- 12 materials across 7 elements × 4 active tiers (5 Common / 4 Uncommon / 2 Rare / 1 Epic)
+- Stack cap 999 with overflow→gold conversion (rates 2/8/35/150)
+- Idle generation 4 Common/hr + 1 Uncommon/hr rotating, 8hr cap
+- Drop rates per-mille: Common 650 / Uncommon 250 / Rare 80 / Epic 15
+
+**Next**: GDD #3 of 4 — `/design-system weapon-entity-system`
 
 ## Progress Checklist
 

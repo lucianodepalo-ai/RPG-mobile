@@ -37,7 +37,7 @@
 #   Each entry: name, status, source, referenced_by[], attributes{}, added, revised
 
 version: 1
-last_updated: 2026-04-13
+last_updated: 2026-04-21
 
 # ─── ENTITIES ────────────────────────────────────────────────────────────────
 # Named game-world objects: enemies, NPCs, characters, factions, bosses.
@@ -77,7 +77,199 @@ entities: []
 # Attribute fields: value_gold, weight, stackable, category, and any stat
 #   modifiers that another system (e.g., economy, crafting) might reference.
 
-items: []
+items:
+  # ── MVP Materials (12 total — 5 Common + 4 Uncommon + 2 Rare + 1 Epic) ──
+  - name: iron_root
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    display_name: Ironroot
+    element: Neutral
+    tier: Common
+    tier_int: 1
+    stackable: true
+    stack_cap: 999
+    category: crafting_material
+    flavor_text: "The root of a tree that grew under a meteorite."
+    added: 2026-04-21
+    revised: ""
+
+  - name: ash_shard
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    display_name: Ash Shard
+    element: Fire
+    tier: Common
+    tier_int: 1
+    stackable: true
+    stack_cap: 999
+    category: crafting_material
+    flavor_text: "Still warm. Still angry."
+    added: 2026-04-21
+    revised: ""
+
+  - name: frost_petal
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    display_name: Frost Petal
+    element: Water/Ice
+    tier: Common
+    tier_int: 1
+    stackable: true
+    stack_cap: 999
+    category: crafting_material
+    flavor_text: "Blooms only in the cold between heartbeats."
+    added: 2026-04-21
+    revised: ""
+
+  - name: clay_knot
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    display_name: Clay Knot
+    element: Earth
+    tier: Common
+    tier_int: 1
+    stackable: true
+    stack_cap: 999
+    category: crafting_material
+    flavor_text: "Shaped by pressure no hand applied."
+    added: 2026-04-21
+    revised: ""
+
+  - name: storm_filament
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    display_name: Storm Filament
+    element: Wind/Storm
+    tier: Common
+    tier_int: 1
+    stackable: true
+    stack_cap: 999
+    category: crafting_material
+    flavor_text: "Hums a note no one taught it."
+    added: 2026-04-21
+    revised: ""
+
+  - name: pale_ember
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    display_name: Pale Ember
+    element: Light
+    tier: Uncommon
+    tier_int: 2
+    stackable: true
+    stack_cap: 999
+    category: crafting_material
+    flavor_text: "Burns without consuming. Illuminates without warmth."
+    added: 2026-04-21
+    revised: ""
+
+  - name: void_mote
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    display_name: Void Mote
+    element: Dark
+    tier: Uncommon
+    tier_int: 2
+    stackable: true
+    stack_cap: 999
+    category: crafting_material
+    flavor_text: "It has weight. It has no shadow."
+    added: 2026-04-21
+    revised: ""
+
+  - name: saltfire_resin
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    display_name: Saltfire Resin
+    element: Fire
+    tier: Uncommon
+    tier_int: 2
+    stackable: true
+    stack_cap: 999
+    category: crafting_material
+    flavor_text: "Crystallized from a fire that burned on the sea."
+    added: 2026-04-21
+    revised: ""
+
+  - name: windgale_pearl
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    display_name: Windgale Pearl
+    element: Wind/Storm
+    tier: Uncommon
+    tier_int: 2
+    stackable: true
+    stack_cap: 999
+    category: crafting_material
+    flavor_text: "Hardened from a windstorm's final breath."
+    added: 2026-04-21
+    revised: ""
+
+  - name: cinder_core
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    display_name: Cinder Core
+    element: Fire
+    tier: Rare
+    tier_int: 3
+    stackable: true
+    stack_cap: 999
+    category: crafting_material
+    flavor_text: "The eye of something that once burned for centuries."
+    added: 2026-04-21
+    revised: ""
+
+  - name: glacial_vein
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    display_name: Glacial Vein
+    element: Water/Ice
+    tier: Rare
+    tier_int: 3
+    stackable: true
+    stack_cap: 999
+    category: crafting_material
+    flavor_text: "Moves like memory — slowly, and only backward."
+    added: 2026-04-21
+    revised: ""
+
+  - name: voidember_core
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    display_name: Voidember Core
+    element: Dark
+    tier: Epic
+    tier_int: 4
+    stackable: true
+    stack_cap: 999
+    category: crafting_material
+    flavor_text: "What fire looks like where there is no light to see it by."
+    added: 2026-04-21
+    revised: ""
 
 # Example:
 #
@@ -132,6 +324,67 @@ formulas:
     expression: "SHA256(concat(sorted(boot_resource_paths) || sorted(boot_resource_content_hashes)))"
     notes: "Anti-cheat session integrity hash. Server-expected vs client-reported mismatch flags session for review. Sorted ordering + content hashing guarantees iOS/Android/Web produce identical hashes for identical Resources."
     added: 2026-04-13
+    revised: ""
+
+  # ── Material System formulas (4) ──
+  - name: weighted_material_drop
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    variables:
+      - entries
+      - total_weight
+      - random_int
+      - cumulative_weights
+    output_range: [0, 49]  # drop_index into LootTable entries array
+    expression: "drop_index = find_in_cumulative(random_int(0, total_weight - 1), cumulative_weights)"
+    notes: "Standard weighted-random drop resolution. RNG deterministic per combat_session_id for cross-platform consistency. Integer-only path."
+    added: 2026-04-21
+    revised: ""
+
+  - name: idle_material_award
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    variables:
+      - elapsed_seconds
+      - idle_rate_seconds_per_unit
+      - idle_max_offline_units
+    output_range: [0, 168]  # 0 to max units (default 32, max safe 168)
+    expression: "units_awarded = min(floor(elapsed_seconds / idle_rate_seconds_per_unit), idle_max_offline_units)"
+    notes: "Offline material generation. 8-hour cap prevents AFK exploitation. elapsed_seconds clamped to 30 days upstream (by Idle GDD). Owner: Idle/Offline Progression GDD (Tier 2) for elapsed_seconds; MaterialSystem owns the cap and award logic."
+    added: 2026-04-21
+    revised: ""
+
+  - name: material_overflow_gold_conversion
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    variables:
+      - overflow_units
+      - tier
+      - overflow_rate_for_tier
+    output_range: [0, 499500]  # theoretical max; normal play ~0-500 gold
+    expression: "gold_awarded = overflow_units × overflow_rate_for_tier[tier]"
+    notes: "Converts material overflow above 999 stack cap to gold. Rates (2/8/35/150/500 per tier) deliberately BELOW material's crafting value to nudge consumption over hoarding. Must stay coordinated with Economy GDD cost curves — if rates exceed crafting yield, players hoard for gold not craft."
+    added: 2026-04-21
+    revised: ""
+
+  - name: expected_material_drops_per_session
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    variables:
+      - encounters_per_session
+      - drop_rate_per_tier
+    output_range: [0.0, 10.0]  # float; analytics only
+    expression: "ed[T] = encounters_per_session × drop_rate_per_tier[T] / 1000"
+    notes: "ANALYTICS-ONLY formula. Validates session-level drop distribution targets. Float output is acceptable because this never feeds combat; used in dashboards only. Target (6 encounters, MVP rates): Common 3.9/session, Uncommon 1.5, Rare 0.48, Epic 0.09."
+    added: 2026-04-21
     revised: ""
 
 # Example:
@@ -283,10 +536,133 @@ constants:
     source: design/gdd/data-driven-config.md
     referenced_by:
       - design/gdd/data-driven-config.md
+      - design/gdd/material-system.md
     value: "assets/data/loot_tables/"
     unit: resource_class_folder
-    notes: "Custom Resource class for drop probability tables. Validation enforces non-zero weight sum. Field semantics owned by Economy System GDD (pending)."
+    notes: "Custom Resource class for drop probability tables. Validation enforces non-zero weight sum. Field semantics owned by Economy System GDD (pending). Consumed by Material System via weighted_material_drop formula."
     added: 2026-04-13
+    revised: 2026-04-21
+
+  # ── Material System tuning constants (10) ──
+  - name: stack_cap_per_material
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    value: 999
+    unit: units_per_material
+    notes: "Max units of any single material in inventory. Overflow converts to gold via material_overflow_gold_conversion formula."
+    added: 2026-04-21
+    revised: ""
+
+  - name: idle_rate_seconds_per_unit
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    value: 3600
+    unit: seconds_per_unit
+    notes: "How many seconds offline produce one idle material unit. Default = 1 unit per hour. Distributed across 5 Commons + 1 rotating Uncommon."
+    added: 2026-04-21
+    revised: ""
+
+  - name: idle_max_offline_units
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    value: 32
+    unit: units
+    notes: "Max offline idle units awarded per session resume. 8 hours × 4 Commons/hr = 32 total. Prevents week-long AFK dumps."
+    added: 2026-04-21
+    revised: ""
+
+  - name: overflow_rate_common
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    value: 2
+    unit: gold_per_unit
+    notes: "Gold per unit when Common material overflow converts to gold. Set BELOW Common crafting yield to nudge consumption."
+    added: 2026-04-21
+    revised: ""
+
+  - name: overflow_rate_uncommon
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    value: 8
+    unit: gold_per_unit
+    notes: "Gold per unit when Uncommon material overflow converts to gold."
+    added: 2026-04-21
+    revised: ""
+
+  - name: overflow_rate_rare
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    value: 35
+    unit: gold_per_unit
+    notes: "Gold per unit when Rare material overflow converts to gold."
+    added: 2026-04-21
+    revised: ""
+
+  - name: overflow_rate_epic
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    value: 150
+    unit: gold_per_unit
+    notes: "Gold per unit when Epic material overflow converts to gold. Rate intentionally kept below Epic crafting yield."
+    added: 2026-04-21
+    revised: ""
+
+  - name: drop_rate_common_per_mille
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    value: 650
+    unit: per_mille
+    notes: "PvE encounter drop rate for Common materials (65.0%). Tuned to produce ~4-5 Common drops per 6-encounter session."
+    added: 2026-04-21
+    revised: ""
+
+  - name: drop_rate_uncommon_per_mille
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    value: 250
+    unit: per_mille
+    notes: "PvE encounter drop rate for Uncommon materials (25.0%). Tuned to produce ~1-2 Uncommon drops per 6-encounter session."
+    added: 2026-04-21
+    revised: ""
+
+  - name: drop_rate_rare_per_mille
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    value: 80
+    unit: per_mille
+    notes: "PvE encounter drop rate for Rare materials (8.0%). Tuned to produce ~1 Rare per 2 sessions. Secondary path: weekly challenge chest (guaranteed 1)."
+    added: 2026-04-21
+    revised: ""
+
+  - name: drop_rate_epic_per_mille
+    status: active
+    source: design/gdd/material-system.md
+    referenced_by:
+      - design/gdd/material-system.md
+    value: 15
+    unit: per_mille
+    notes: "PvE encounter drop rate for Epic materials (1.5%). Tuned to produce ~1 Epic per 3 weeks at daily play. Secondary path: boss drop (TBD which boss)."
+    added: 2026-04-21
     revised: ""
 
 # Example:
