@@ -37,7 +37,7 @@
 #   Each entry: name, status, source, referenced_by[], attributes{}, added, revised
 
 version: 1
-last_updated: 2026-04-21
+last_updated: 2026-04-21  # Weapon Entity System GDD fully authored — schema, 6 formulas, 9 constants registered
 
 # ─── ENTITIES ────────────────────────────────────────────────────────────────
 # Named game-world objects: enemies, NPCs, characters, factions, bosses.
@@ -387,6 +387,99 @@ formulas:
     added: 2026-04-21
     revised: ""
 
+  # ── Weapon Entity System formulas (6 total; all integer arithmetic for determinism) ──
+  - name: weapon_rarity_gate
+    status: active
+    source: design/gdd/weapon-entity-system.md
+    referenced_by:
+      - design/gdd/weapon-entity-system.md
+    variables:
+      - materials[]  # Array of MaterialDefinition with .tier, .rarity
+      - forge_grade  # int [0, 100]
+    output_range: [1, 5]
+    expression: "Deterministic gate: r=5 if epic_count>=2 AND grade>=85; r=4 if (epic>=1 AND grade>=60) OR (rare_or_higher>=2 AND grade>=75); r=3 if (rare>=1 AND grade>=40) OR (uncommon>=3 AND grade>=60); r=2 if (uncommon>=1 AND grade>=20) OR (common>=3 AND grade>=60); r=1 default"
+    notes: "NON-RANDOM. Same inputs -> same rarity. Output frozen at forge to WeaponInstance.rarity. See weapon-entity-system.md section D.1 + G.2 for threshold tuning knobs."
+    added: 2026-04-21
+    revised: ""
+
+  - name: weapon_grade_bonus_per_mille
+    status: active
+    source: design/gdd/weapon-entity-system.md
+    referenced_by:
+      - design/gdd/weapon-entity-system.md
+    variables:
+      - forge_grade  # int [0, 100]
+    output_range: [0, 500]
+    expression: "grade_bonus_per_mille = forge_grade * GRADE_BONUS_MULTIPLIER (default 5)"
+    notes: "Linear mapping. Range [0, 500 per-mille] = 0% to +50% stat bonus. See weapon-entity-system.md section D.2 + G.3."
+    added: 2026-04-21
+    revised: ""
+
+  - name: weapon_material_bonus_aggregation
+    status: active
+    source: design/gdd/weapon-entity-system.md
+    referenced_by:
+      - design/gdd/weapon-entity-system.md
+    variables:
+      - materials[]  # with .stat_bonuses[axis], .tier, .damage_type_affinity
+      - archetype.damage_type
+      - stat_axis  # one of attack/defense/speed/crit/dodge
+    output_range: [0, 16000]  # practical bound at 10x T4 compat
+    expression: "sum over materials of (stat_bonuses[axis] * count * tier_weight[tier] * compatibility_multiplier) / 1000; tier_weight=[1,2,4,8]; compatibility_multiplier=1000 (match) or 500 (mismatch)"
+    notes: "Per stat axis aggregation. Integer-only. Output feeds weapon_stat_final. See weapon-entity-system.md section D.3 + G.4."
+    added: 2026-04-21
+    revised: ""
+
+  - name: weapon_stat_final
+    status: active
+    source: design/gdd/weapon-entity-system.md
+    referenced_by:
+      - design/gdd/weapon-entity-system.md
+      - design/gdd/combat-simulation.md  # expected downstream consumer (not yet designed)
+    variables:
+      - archetype_base  # int
+      - material_bonus_aggregate  # per_mille
+      - grade_bonus_per_mille  # per_mille
+    output_range: [1, 9999]
+    expression: "stat_final = clamp(archetype_base + floor(material_bonus_aggregate * archetype_base / 1000) + floor(grade_bonus_per_mille * archetype_base / 1000), 1, 9999)"
+    notes: "Frozen at forge to WeaponInstance.*_final fields (attack/defense/speed/crit/dodge). Combat Sim NEVER re-derives. See weapon-entity-system.md section D.4 + G.5."
+    added: 2026-04-21
+    revised: ""
+
+  - name: weapon_element_dominance
+    status: active
+    source: design/gdd/weapon-entity-system.md
+    referenced_by:
+      - design/gdd/weapon-entity-system.md
+    variables:
+      - materials[]  # with .element StringName + .tier
+    output_range: null  # StringName output
+    expression: "element_id = argmax over elements E of sum(material.tier for material in materials where material.element == E); tiebreak: first-encountered in input order; fallback &'neutral' if all materials are Neutral"
+    notes: "Deterministic. Output is StringName, not numeric. 7 valid values: &'fire', &'water_ice', &'earth', &'wind_storm', &'light', &'dark', &'neutral'. See weapon-entity-system.md section D.5 + G.6."
+    added: 2026-04-21
+    revised: ""
+
+  - name: weapon_power_rating
+    status: active
+    source: design/gdd/weapon-entity-system.md
+    referenced_by:
+      - design/gdd/weapon-entity-system.md
+      - design/gdd/matchmaking.md  # owns the weights; not yet designed
+    variables:
+      - archetype.base_power_rating
+      - attack_final
+      - defense_final
+      - speed_final
+      - crit_chance_final  # per_mille
+      - dodge_final  # per_mille
+      - rarity
+      - affix_tiers[]  # Array[int]
+    output_range: [300, 15000]  # typical
+    expression: "pr = base_power_rating + floor((attack_final + defense_final + speed_final) / POWER_STAT_WEIGHT) + floor(crit_chance_final / POWER_CRIT_DIVISOR) + floor(dodge_final / POWER_DODGE_DIVISOR) + rarity * POWER_RARITY_MULTIPLIER + sum(affix_tier * POWER_AFFIX_TIER_MULTIPLIER); default weights (placeholder): STAT=3, CRIT=5, DODGE=5, RARITY_MULT=50, AFFIX_MULT=30"
+    notes: "Weights OWNED by Matchmaking GDD (not yet designed). Frozen at naming; NOT recomputed on patch. NOT visible in HUD/mini-cards (anti-P2W). See weapon-entity-system.md section D.6 + G.7."
+    added: 2026-04-21
+    revised: ""
+
 # Example:
 #
 # formulas:
@@ -434,14 +527,16 @@ constants:
   # ── Resource type contracts (10 Custom Resource classes defined by data-driven-config) ──
   - name: MaterialDefinition
     status: active
-    source: design/gdd/data-driven-config.md
+    source: design/gdd/material-system.md
     referenced_by:
       - design/gdd/data-driven-config.md
+      - design/gdd/material-system.md
+      - design/gdd/weapon-entity-system.md  # consumes MaterialDefinition.tier, element, rarity, and requested schema extensions (stat_bonuses, damage_type_affinity)
     value: "assets/data/materials/"
     unit: resource_class_folder
-    notes: "Custom Resource class for craftable ingredients. Owner of field semantics: Material System GDD (pending)."
+    notes: "Custom Resource class for craftable ingredients. Schema extensions REQUESTED by Weapon Entity System (pending retrofit): (1) stat_bonuses: Dictionary[StringName, int] — per_mille bonus per stat_axis; (2) damage_type_affinity: StringName — slash/pierce/blunt/&'' (empty). Both non-breaking appends."
     added: 2026-04-13
-    revised: ""
+    revised: "2026-04-21"
 
   - name: AffixDefinition
     status: active
@@ -467,13 +562,25 @@ constants:
 
   - name: WeaponArchetypeDefinition
     status: active
-    source: design/gdd/data-driven-config.md
+    source: design/gdd/weapon-entity-system.md
     referenced_by:
       - design/gdd/data-driven-config.md
+      - design/gdd/weapon-entity-system.md
     value: "assets/data/weapon_archetypes/"
     unit: resource_class_folder
-    notes: "Custom Resource class for weapon class templates. Owner of field semantics: Weapon Entity System GDD (pending)."
+    notes: "Custom Resource class for weapon class templates (immutable, read-only). Schema: archetype_id (StringName), damage_type (slash/pierce/blunt), base_attack, base_defense, base_speed, base_crit_per_mille, base_dodge_per_mille, base_power_rating, affix_slot_count, affix_slot_tiers (Array[int]), sprite_id, name_default, schema_version. MVP set: 3 archetypes (sword_iron_01, dagger_iron_01, hammer_iron_01). See weapon-entity-system.md §C.1."
     added: 2026-04-13
+    revised: "2026-04-21"
+
+  - name: WeaponInstance
+    status: active
+    source: design/gdd/weapon-entity-system.md
+    referenced_by:
+      - design/gdd/weapon-entity-system.md
+    value: "user://weapons/[instance_uid].tres"
+    unit: resource_class_per_file
+    notes: "Custom Resource class for each forged weapon (DNA snapshot, one .tres per instance). 14 frozen fields post-NAMED state + 3 mutable (state, equipped_by_hero_uid, cosmetic_overlay_id) + signature_propagated_at (write-once by PvP Async). 8 states: FORGING/FORGED_UNNAMED/NAMED/EQUIPPED/DEFENDING/RETIRED/DELETED/ORPHANED. PvP serialization via to_dict() — NOT duplicate_deep(). See weapon-entity-system.md §C.2 + §C.4."
+    added: 2026-04-21
     revised: ""
 
   - name: HeroArchetypeDefinition
@@ -662,6 +769,107 @@ constants:
     value: 15
     unit: per_mille
     notes: "PvE encounter drop rate for Epic materials (1.5%). Tuned to produce ~1 Epic per 3 weeks at daily play. Secondary path: boss drop (TBD which boss)."
+    added: 2026-04-21
+    revised: ""
+
+  # ── Weapon Entity System constants (9 total) ──
+  - name: MAX_ROSTER_SIZE
+    status: active
+    source: design/gdd/weapon-entity-system.md
+    referenced_by:
+      - design/gdd/weapon-entity-system.md
+      - design/gdd/forge-system.md  # enforced at forge start (not yet designed)
+    value: 12
+    unit: weapons
+    notes: "Cap del weapon roster por player. NO PURCHASABLE — core anti-P2W constraint. Counts: FORGING + FORGED_UNNAMED + NAMED + EQUIPPED + DEFENDING. Excludes: RETIRED + DELETED + ORPHANED. Enforced at ForgeSystem.create_weapon() entry. Safe range [8, 20] para internal balance only — NOT for gating."
+    added: 2026-04-21
+    revised: ""
+
+  - name: TIER_WEIGHT_TABLE
+    status: active
+    source: design/gdd/weapon-entity-system.md
+    referenced_by:
+      - design/gdd/weapon-entity-system.md
+    value: [1, 2, 4, 8]
+    unit: multiplier_per_material_tier
+    notes: "Geometric progression [T1=1, T2=2, T3=4, T4=8] para material_bonus_aggregation. T4 vale 8x más que T1 — crea skill ceiling en material selection. MUST be monotonically increasing."
+    added: 2026-04-21
+    revised: ""
+
+  - name: COMPATIBILITY_MULTIPLIER_MATCH
+    status: active
+    source: design/gdd/weapon-entity-system.md
+    referenced_by:
+      - design/gdd/weapon-entity-system.md
+    value: 1000
+    unit: per_mille
+    notes: "Multiplier cuando material.damage_type_affinity MATCHES archetype.damage_type. Feeds weapon_material_bonus_aggregation formula."
+    added: 2026-04-21
+    revised: ""
+
+  - name: COMPATIBILITY_MULTIPLIER_MISMATCH
+    status: active
+    source: design/gdd/weapon-entity-system.md
+    referenced_by:
+      - design/gdd/weapon-entity-system.md
+    value: 500
+    unit: per_mille
+    notes: "Penalty multiplier cuando material.damage_type_affinity MISMATCH archetype.damage_type. 50% reduction. Safe range [300, 800]: <300 castiga demasiado experimentación, >800 elimina incentivo a matching."
+    added: 2026-04-21
+    revised: ""
+
+  - name: GRADE_BONUS_MULTIPLIER
+    status: active
+    source: design/gdd/weapon-entity-system.md
+    referenced_by:
+      - design/gdd/weapon-entity-system.md
+    value: 5
+    unit: per_mille_per_grade_point
+    notes: "grade_bonus_per_mille = forge_grade × GRADE_BONUS_MULTIPLIER. Default 5 yields range [0, 500‰] (0% to +50%). Safe range [3, 8]."
+    added: 2026-04-21
+    revised: ""
+
+  - name: STAT_FINAL_CLAMP_MIN
+    status: active
+    source: design/gdd/weapon-entity-system.md
+    referenced_by:
+      - design/gdd/weapon-entity-system.md
+    value: 1
+    unit: stat_point
+    notes: "Floor para stat_final (attack/defense/speed/crit/dodge). Nunca 0 para evitar division-by-zero en Combat Sim."
+    added: 2026-04-21
+    revised: ""
+
+  - name: STAT_FINAL_CLAMP_MAX
+    status: active
+    source: design/gdd/weapon-entity-system.md
+    referenced_by:
+      - design/gdd/weapon-entity-system.md
+    value: 9999
+    unit: stat_point
+    notes: "Ceiling para stat_final. Fits en int16 para serialización compacta si necesario. Raising requires Combat Sim overflow audit."
+    added: 2026-04-21
+    revised: ""
+
+  - name: WEAPON_NAME_MAX_LENGTH
+    status: active
+    source: design/gdd/weapon-entity-system.md
+    referenced_by:
+      - design/gdd/weapon-entity-system.md
+    value: 20
+    unit: chars
+    notes: "Longitud máxima del weapon_name. UTF-8 allowed; control chars stripped. Safe range [10, 40]."
+    added: 2026-04-21
+    revised: ""
+
+  - name: PLAYER_SIGNATURE_MAX_LENGTH
+    status: active
+    source: design/gdd/weapon-entity-system.md
+    referenced_by:
+      - design/gdd/weapon-entity-system.md
+    value: 32
+    unit: chars
+    notes: "Longitud máxima del player_signature. Required pre-forge; no auto-fill. UTF-8; moderation pipeline TBD (OQ.8). Safe range [16, 64]."
     added: 2026-04-21
     revised: ""
 

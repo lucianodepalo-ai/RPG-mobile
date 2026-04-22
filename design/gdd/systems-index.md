@@ -24,7 +24,7 @@ El scope técnico se caracteriza por: **data-driven** en todo (sistemas de mater
 | 1 | Material System | Gameplay | MVP | Designed | [material-system.md](material-system.md) | Data-Driven Config, Save/Load |
 | 2 | Forge System | Gameplay | MVP | Not Started | — | Material, Weapon Entity, Affix, Audio, VFX, Input |
 | 3 | Affix/Mutation System | Gameplay | MVP | Not Started | — | Data-Driven Config, Weapon Entity |
-| 4 | Weapon Entity System | Core | MVP | Not Started | — | Data-Driven Config, Save/Load, Material |
+| 4 | Weapon Entity System | Core | MVP | Designed | [weapon-entity-system.md](weapon-entity-system.md) | Data-Driven Config, Save/Load, Material |
 | 5 | Hero/Wielder System | Gameplay | MVP | Not Started | — | Data-Driven Config, Save/Load, Weapon Entity |
 | 6 | Enemy System | Gameplay | MVP | Not Started | — | Data-Driven Config (data consumed by Combat Sim) |
 | 7 | Combat Simulation | Core | MVP | Not Started | — | Weapon Entity, Hero, Enemy |
@@ -241,10 +241,10 @@ Sistemas que requieren prototipado temprano independientemente de su tier.
 | Metric | Count |
 |--------|-------|
 | Total systems identified | 40 |
-| Design docs started | 2 |
+| Design docs started | 3 |
 | Design docs reviewed | 0 |
 | Design docs approved | 0 |
-| MVP systems designed | 2 / 23 |
+| MVP systems designed | 3 / 23 |
 | Vertical Slice systems designed | 0 / 12 |
 | Full Vision systems designed | 0 / 5 |
 
