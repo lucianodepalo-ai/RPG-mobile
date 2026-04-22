@@ -37,7 +37,7 @@
 #   Each entry: name, status, source, referenced_by[], attributes{}, added, revised
 
 version: 1
-last_updated: 2026-04-21  # Weapon Entity System GDD fully authored — schema, 6 formulas, 9 constants registered
+last_updated: 2026-04-22  # Forge System GDD fully authored — 6 formulas, 10 constants, ForgeConfig resource, 3 signals registered
 
 # ─── ENTITIES ────────────────────────────────────────────────────────────────
 # Named game-world objects: enemies, NPCs, characters, factions, bosses.
@@ -393,6 +393,7 @@ formulas:
     source: design/gdd/weapon-entity-system.md
     referenced_by:
       - design/gdd/weapon-entity-system.md
+      - design/gdd/forge-system.md  # Forge produces forge_grade input; invokes gate at REVEALING state per §C.1 Rule 8
     variables:
       - materials[]  # Array of MaterialDefinition with .tier, .rarity
       - forge_grade  # int [0, 100]
@@ -407,6 +408,7 @@ formulas:
     source: design/gdd/weapon-entity-system.md
     referenced_by:
       - design/gdd/weapon-entity-system.md
+      - design/gdd/forge-system.md  # Forge produces forge_grade; grade_bonus applied during stat_resolve at REVEALING
     variables:
       - forge_grade  # int [0, 100]
     output_range: [0, 500]
@@ -823,6 +825,7 @@ constants:
     source: design/gdd/weapon-entity-system.md
     referenced_by:
       - design/gdd/weapon-entity-system.md
+      - design/gdd/forge-system.md  # Forge GDD §G.7 flags this as LOCKED upstream constant — cannot be overridden by ForgeConfig
     value: 5
     unit: per_mille_per_grade_point
     notes: "grade_bonus_per_mille = forge_grade × GRADE_BONUS_MULTIPLIER. Default 5 yields range [0, 500‰] (0% to +50%). Safe range [3, 8]."
@@ -867,10 +870,276 @@ constants:
     source: design/gdd/weapon-entity-system.md
     referenced_by:
       - design/gdd/weapon-entity-system.md
+      - design/gdd/forge-system.md  # Forge enforces at SELECTING → FORGING transition via Rule 1 precondition check
     value: 32
     unit: chars
     notes: "Longitud máxima del player_signature. Required pre-forge; no auto-fill. UTF-8; moderation pipeline TBD (OQ.8). Safe range [16, 64]."
     added: 2026-04-21
+    revised: ""
+
+  # ── FORGE SYSTEM block (added 2026-04-22, GDD #4) ──
+  # NOTE: These entries are grouped at the end for readability during authoring.
+  # Logical grouping: the forge_* formulas below belong in the formulas section;
+  # the FORGE_* + SEAL_* + MINIGAME_* + ANTI_SPAM_* constants belong in constants
+  # section; ForgeConfig belongs with resource class contracts. Can be re-sorted
+  # by /consistency-check when convenient — grep-by-name queries are unaffected.
+
+  - name: FORGE_SESSION_ID_BITS
+    status: active
+    source: design/gdd/forge-system.md
+    referenced_by:
+      - design/gdd/forge-system.md
+      - design/gdd/weapon-entity-system.md  # referenced en Weapon G.9 como entropy source para replay determinism
+    value: 64
+    unit: bits
+    notes: "UUID v4 entropy para forge_session_id. Bajar a <32 produce birthday collisions en millones de forges — romperia Replay integrity. LOCKED. See forge-system.md §C.1 Rule 3."
+    added: 2026-04-22
+    revised: ""
+
+  - name: DUET_GRADE_CAP
+    status: active
+    source: design/gdd/forge-system.md
+    referenced_by:
+      - design/gdd/forge-system.md
+    value: 80
+    unit: grade_points
+    notes: "LOCKED. Cap de la porción Duet del grade (80/20 split con Seal). Cambiar reescribe Player Fantasy + Rule 6/8. See forge-system.md §G.7."
+    added: 2026-04-22
+    revised: ""
+
+  - name: SEAL_MAX_BONUS
+    status: active
+    source: design/gdd/forge-system.md
+    referenced_by:
+      - design/gdd/forge-system.md
+    value: 20
+    unit: grade_points
+    notes: "LOCKED. Bonus máximo del Seal (Perfect Seal). Cap total grade a 100 (80+20). See forge-system.md §G.7."
+    added: 2026-04-22
+    revised: ""
+
+  - name: GRACE_WINDOW
+    status: active
+    source: design/gdd/forge-system.md
+    referenced_by:
+      - design/gdd/forge-system.md
+    value: 420
+    unit: seconds
+    notes: "Ventana entre forges sin acumular heat penalty. Default 420s (7 min) para sesión típica 25 min / 4 forges. Safe range [180, 600]. See forge-system.md §G.4 + Formula D.5."
+    added: 2026-04-22
+    revised: ""
+
+  - name: HOT_FORGE_FREE_COUNT
+    status: active
+    source: design/gdd/forge-system.md
+    referenced_by:
+      - design/gdd/forge-system.md
+    value: 3
+    unit: forges
+    notes: "Forjas gratis antes de acumular penalty. Core Pillar 3 alignment (3-forge sessions focused). Safe range [2, 5]."
+    added: 2026-04-22
+    revised: ""
+
+  - name: PENALTY_PER_EXTRA_FORGE
+    status: active
+    source: design/gdd/forge-system.md
+    referenced_by:
+      - design/gdd/forge-system.md
+    value: 20
+    unit: grade_points
+    notes: "Grade ceiling drop per extra hot forge above free count. Safe range [10, 30]. Linear scaling; cap por GRADE_FLOOR. See Formula D.5."
+    added: 2026-04-22
+    revised: ""
+
+  - name: RECOVERY_DURATION
+    status: active
+    source: design/gdd/forge-system.md
+    referenced_by:
+      - design/gdd/forge-system.md
+    value: 1800
+    unit: seconds
+    notes: "Duration hasta full recovery del heat penalty. 30 min = matches upper bound de sesión natural. Safe range [900, 3600]. See Formula D.5."
+    added: 2026-04-22
+    revised: ""
+
+  - name: GRADE_FLOOR
+    status: active
+    source: design/gdd/forge-system.md
+    referenced_by:
+      - design/gdd/forge-system.md
+    value: 45
+    unit: grade_points
+    notes: "Minimum ceiling que cooling puede imponer. MUST stay ≥ Rare gate (40) para que cold forge siga produciendo Rare. Safe range [30, 60]."
+    added: 2026-04-22
+    revised: ""
+
+  - name: BASE_TEMPO_BPM
+    status: active
+    source: design/gdd/forge-system.md
+    referenced_by:
+      - design/gdd/forge-system.md
+    value: 72
+    unit: bpm
+    notes: "Tempo base del Duet en Blaze phase. Ember multiplica ×1.15. Cooling vuelve al base pero window narrow. Safe range [60, 96]. See forge-system.md §C.1 Rule 7."
+    added: 2026-04-22
+    revised: ""
+
+  - name: SEAL_WINDOW_MS
+    status: active
+    source: design/gdd/forge-system.md
+    referenced_by:
+      - design/gdd/forge-system.md
+    value: 300
+    unit: milliseconds
+    notes: "Ventana del Timing Input final del Seal. Perfect si tap en 50ms center. Safe range [200, 500]. See Formula D.4."
+    added: 2026-04-22
+    revised: ""
+
+  - name: MIN_MATERIALS_PER_FORGE
+    status: active
+    source: design/gdd/forge-system.md
+    referenced_by:
+      - design/gdd/forge-system.md
+    value: 2
+    unit: materials
+    notes: "Piso de material count per forge. Bajar a 1 colapsa variabilidad combinatoria. Safe range [2, 3]."
+    added: 2026-04-22
+    revised: ""
+
+  - name: forge_strike_value
+    status: active
+    source: design/gdd/forge-system.md
+    referenced_by:
+      - design/gdd/forge-system.md
+    variables:
+      - base_strikes  # int [6, 10]
+    output_range: [8, 13]
+    expression: "strike_value = floor(80 / base_strikes). Sword=10, Dagger=8, Hammer=13 (MVP defaults)."
+    notes: "Grade points por perfect strike sin streak multiplier. See forge-system.md §D.1."
+    added: 2026-04-22
+    revised: ""
+
+  - name: forge_streak_multiplier
+    status: active
+    source: design/gdd/forge-system.md
+    referenced_by:
+      - design/gdd/forge-system.md
+    variables:
+      - streak  # int [0, base_strikes]
+    output_range: [100, 150]
+    expression: "streak_multiplier = 100 if streak<3; 125 if 3≤streak<5; 150 if streak≥5 (per-mille; /100 para aplicar)."
+    notes: "Stepped multiplier (no lineal) para que el upgrade a ×1.25 y ×1.50 se sienta como breakthrough discrete. See forge-system.md §D.2."
+    added: 2026-04-22
+    revised: ""
+
+  - name: forge_duet_grade_accumulation
+    status: active
+    source: design/gdd/forge-system.md
+    referenced_by:
+      - design/gdd/forge-system.md
+    variables:
+      - strike_value  # int [8, 13]
+      - streak_multiplier  # int 100/125/150
+      - miss_penalty  # int default 5
+    output_range: [0, 80]
+    expression: "Running loop over strikes: PERFECT → streak++, contribution = floor(strike_value * streak_mult / 100), duet_grade += contribution. MISS → streak=0, duet_grade = max(0, duet_grade - miss_penalty). LATE → streak=0, no change. Clamp to [0, 80]."
+    notes: "Duet portion de grade. Clamp 80 enforcea el 80/20 split del DUET_GRADE_CAP. See forge-system.md §D.3."
+    added: 2026-04-22
+    revised: ""
+
+  - name: forge_seal_bonus
+    status: active
+    source: design/gdd/forge-system.md
+    referenced_by:
+      - design/gdd/forge-system.md
+    variables:
+      - seal_input_quality  # enum PERFECT/HIT/MISS
+    output_range: [0, 20]
+    expression: "seal_bonus = 20 if PERFECT (tap en center 50ms); 10 if HIT (dentro 300ms fuera center); 0 if MISS (fuera 300ms)."
+    notes: "Binary stepped (no lineal) para que Perfect Seal tenga identidad. Ver forge-system.md §D.4."
+    added: 2026-04-22
+    revised: ""
+
+  - name: forge_grade_ceiling
+    status: active
+    source: design/gdd/forge-system.md
+    referenced_by:
+      - design/gdd/forge-system.md
+    variables:
+      - t  # int seconds since last_forge_completed_at
+      - n  # int consecutive_hot_forges
+      - HOT_FORGE_FREE_COUNT  # int default 3
+      - PENALTY_PER_EXTRA_FORGE  # int default 20
+      - DEGRADATION_ONSET  # int default 420 (= GRACE_WINDOW)
+      - RECOVERY_DURATION  # int default 1800
+      - GRADE_FLOOR  # int default 45
+    output_range: [45, 100]
+    expression: "heat_penalty = max(0, n - HOT_FORGE_FREE_COUNT) × PENALTY_PER_EXTRA_FORGE; time_recovery = clamp((t - DEGRADATION_ONSET) / RECOVERY_DURATION, 0, 1) if t > DEGRADATION_ONSET else 0; grade_ceiling = clamp(100 - heat_penalty + floor(time_recovery * heat_penalty), GRADE_FLOOR, 100)."
+    notes: "Anti-spam counter+time model. Counter update: if t<GRACE_WINDOW then n++; elif t>RECOVERY_FULL (=DEGRADATION_ONSET+RECOVERY_DURATION=2220s) then n=0. See forge-system.md §D.5 + §G.4."
+    added: 2026-04-22
+    revised: ""
+
+  - name: forge_grade_final
+    status: active
+    source: design/gdd/forge-system.md
+    referenced_by:
+      - design/gdd/forge-system.md
+      - design/gdd/weapon-entity-system.md  # consume as WeaponInstance.forge_grade (frozen field)
+    variables:
+      - duet_grade  # int [0, 80]
+      - seal_bonus  # int 0/10/20
+      - grade_ceiling  # int [45, 100]
+    output_range: [0, 100]
+    expression: "forge_grade = clamp(duet_grade + seal_bonus, 0, min(100, grade_ceiling))."
+    notes: "Final grade frozen al forge completion. Alimenta rarity_gate + grade_bonus_per_mille. See forge-system.md §D.6."
+    added: 2026-04-22
+    revised: ""
+
+  - name: ForgeConfig
+    status: active
+    source: design/gdd/forge-system.md
+    referenced_by:
+      - design/gdd/forge-system.md
+      - design/gdd/data-driven-config.md  # Custom Resource class following Data-Driven Config pattern
+    value: "assets/data/config/forge_config.tres"
+    unit: resource_class_per_file
+    notes: "Custom Resource class que contiene los ~30 tuning knobs del Forge (minigame shape, timing windows, grade accumulation, anti-spam cooling, economy). 5 fields explicitly LOCKED (DUET_GRADE_CAP, SEAL_MAX_BONUS, FORGE_SESSION_ID_BITS, NUMBER_OF_HEAT_PHASES, NUMBER_OF_INPUT_TYPES). See forge-system.md §G."
+    added: 2026-04-22
+    revised: ""
+
+  - name: forge_started_signal
+    status: active
+    source: design/gdd/forge-system.md
+    referenced_by:
+      - design/gdd/forge-system.md
+      - design/gdd/weapon-entity-system.md  # signal indirectly observed via create_weapon
+    value: "signal forge_started(session_id: String, archetype_uid: String, materials: Dictionary)"
+    unit: signal_contract
+    notes: "Emitted at SELECTING → FORGING transition post consume_materials + session_id generation. Consumers must subscribe (Audio, VFX, Replay)."
+    added: 2026-04-22
+    revised: ""
+
+  - name: forge_completed_signal
+    status: active
+    source: design/gdd/forge-system.md
+    referenced_by:
+      - design/gdd/forge-system.md
+      - design/gdd/weapon-entity-system.md  # WeaponInstance state transition trigger
+    value: "signal forge_completed(weapon: WeaponInstance, grade: int)"
+    unit: signal_contract
+    notes: "Emitted at REVEALING state post WeaponInstance.create_weapon() returns. Payload grade ∈ [0, 100]."
+    added: 2026-04-22
+    revised: ""
+
+  - name: forge_failed_signal
+    status: active
+    source: design/gdd/forge-system.md
+    referenced_by:
+      - design/gdd/forge-system.md
+    value: "signal forge_failed(reason: String)"
+    unit: signal_contract
+    notes: "12 valid reasons: materials_empty, invalid_signature, unknown_material_id, insufficient_materials, roster_full, archetype_missing, too_many_materials, forge_in_progress, persistence_unavailable, material_consume_error, insufficient_gold, session_id_collision."
+    added: 2026-04-22
     revised: ""
 
 # Example:

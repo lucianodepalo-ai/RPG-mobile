@@ -1,14 +1,22 @@
 # Active Session State
 
-*Last updated: 2026-04-21 (GDD #3 Weapon Entity System completed)*
+*Last updated: 2026-04-22 (GDD #4 Forge System COMPLETED — all 11 sections written)*
 
 ## Current Task
 
-**Camino B (prototype-first) Step 3 of 4 COMPLETED ✓.**
+**Camino B (prototype-first) ALL 4 STEPS COMPLETED ✓.**
 
 GDD #1 of 4: **Data-Driven Config** — DESIGNED ✓
 GDD #2 of 4: **Material System** — DESIGNED ✓
 GDD #3 of 4: **Weapon Entity System** — DESIGNED ✓ (1388 lines, 11 sections, 0 placeholders)
+GDD #4 of 4: **Forge System** — DESIGNED ✓ (896 lines, 11 sections, 0 placeholders)
+- File: `design/gdd/forge-system.md`
+- Sections: Overview ✓ Player Fantasy ✓ Detailed Design (12 rules + 5-state FSM + 12 interactions) ✓ Formulas (6: D.1–D.6) ✓ Edge Cases (30) ✓ Dependencies (9 upstream + 7 downstream) ✓ Tuning Knobs (30 + 5 LOCKED) ✓ Acceptance Criteria (28 GWT) ✓ + Visual/Audio ✓ + UI ✓ + Open Questions (10) ✓
+- Registry updated: 6 formulas + 10 constants + ForgeConfig resource + 3 signals + 4 referenced_by updates
+- Player Fantasy: "The Duet that settles into a seal" (C3 primary + C2 graft)
+- Anti-spam model: counter+time (n + grace window + recovery), floor 45, free count 3
+- Grade split: 80 Duet / 20 Seal (LOCKED)
+- Systems-index updated: 4/23 MVP designed
 - File: `design/gdd/weapon-entity-system.md`
 - All sections complete: A ✓ B ✓ C ✓ D ✓ E ✓ F ✓ G ✓ H ✓ + Visual/Audio ✓ + UI ✓ + Open Questions ✓
 - Registry updated: WeaponArchetypeDefinition + WeaponInstance + 6 formulas + 9 constants + MaterialDefinition schema extensions requested
@@ -18,8 +26,17 @@ GDD #3 of 4: **Weapon Entity System** — DESIGNED ✓ (1388 lines, 11 sections,
   2. `damage_type_affinity: StringName` — slash/pierce/blunt/&""
 - **10 Open Questions flagged** for downstream GDDs (Save/Load migration, AffixSystem signature, Combat Sim determinism, Matchmaking weights, Tier 2 Vault, Cosmetic pipeline, Anti-spam forge, Signature moderation, ORPHANED UX, PvP dict schema drift)
 
-**Next step**: GDD #4 of 4 — `/design-system forge-system` (MVP slim, validates core hypothesis)
-- Recommended: after GDD #4, run `/prototype forge-core` (Tier 0 prototype) before full /create-architecture
+**Current**: GDD #4 of 4 — `/design-system forge-system` IN PROGRESS
+- File: `design/gdd/forge-system.md` (skeleton created, 13 sections pending)
+- Review mode: `lean`
+- Section in progress: **A — Overview**
+- Caveman mode: OFF for this skill (GDDs require full prose)
+
+**Provisional contracts flagged** (4 undesigned upstream deps):
+1. AffixSystem.roll_affixes(seed, slot_count, slot_tiers, rarity) — Affix GDD pending
+2. Audio event bus (forge_strike_played, forge_heat_changed, forge_reveal_played) — Audio GDD pending
+3. VFXFramework.trigger_flipbook / emit_particles (4×150 cap) — VFX GDD pending
+4. InputSystem.get_timestamped_touch (≤50ms precision) — Input GDD pending
 
 ## Progress Checklist
 
